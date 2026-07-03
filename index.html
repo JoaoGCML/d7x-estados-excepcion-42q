@@ -115,7 +115,7 @@ footer{padding:32px 0;color:var(--faint);font-size:12px}
 <section>
 <p class="eyebrow">Qué contiene este registro</p>
 <h2>Declaratorias de excepción en las Américas — notificadas y no notificadas</h2>
-<p class="subt" style="max-width:840px">Reúne declaratorias de estado de excepción, emergencia, sitio, calamidad y figuras equivalentes (1976–2026), organizadas por su <b>origen</b> y su <b>estatus jurídico</b>. No es solo un registro de notificaciones: integra en un mismo marco lo que los Estados <b>sí comunicaron</b> a los organismos internacionales y lo que <b>no</b>. Los dos conjuntos son revisados y mutuamente excluyentes.</p>
+<p class="subt" style="max-width:860px">Es un registro de las <b>declaratorias de excepción en las Américas</b> (1976–2026): tanto las que los Estados <b>comunicaron</b> a los organismos internacionales de referencia (OEA, ONU) como las <b>identificadas por otros métodos</b>. Ambas revisadas y organizadas —por su origen y su estatus jurídico— en dos conjuntos mutuamente excluyentes.</p>
 <div class="estruct">
  <div class="ecat">
   <div class="ehead"><span class="sw ly-notif"></span><b>Declaratorias notificadas</b><span class="pill">pestaña Notificadas</span></div>
@@ -141,7 +141,7 @@ footer{padding:32px 0;color:var(--faint);font-size:12px}
  <label><input type="checkbox" id="ly-facto" checked><span class="sw ly-facto"></span>De facto <span class="pill" id="c-facto"></span></label>
 </div>
 <div class="card"><div class="tl" id="ctl"></div></div>
-<p class="note">La capa notificada muestra episodios encadenados (declaración→renovaciones); la capa no notificada muestra cada declaratoria del barrido (ancho mínimo para visibilidad). Pasa el cursor para ver el detalle y la fuente.</p>
+<p class="note">La capa notificada agrupa las notificaciones de un país en <b>episodios de vigencia</b>: renovaciones separadas por ≤75 días se encadenan en una vigencia continua; un lapso mayor abre un episodio nuevo (criterio heurístico de la reconstrucción —basado en los ciclos típicos de renovación de 30–90 días—, no una regla legal). La capa no notificada muestra cada declaratoria del barrido con ancho mínimo para visibilidad. Pasa el cursor para ver el detalle y la fuente.</p>
 </section>
 </div>
 
@@ -193,16 +193,16 @@ footer{padding:32px 0;color:var(--faint);font-size:12px}
  <div class="kpi"><b id="djtotal">—</b><span>declaratorias en vista</span></div>
  <div class="kpi jure"><b id="djjure">—</b><span>de jure no notificadas</span></div>
  <div class="kpi facto"><b id="djdf">—</b><span>de facto (nunca notificables)</span></div>
- <div class="kpi notif"><b id="djnot">—</b><span>solapan c/ notificadas</span></div>
+ <div class="kpi notif"><b id="djnot">—</b><span>coinciden con una notificada</span></div>
 </div>
-<p class="note" style="margin-top:10px">Delimitación objetiva, 3 tests excluyentes → <b>(1)</b> ¿matchea una notificación OEA/ONU (±45 días)? = <b>notificada</b> (solapamiento); si no <b>(2)</b> ¿el acto declara ausencia de instrumento formal? = <b>de facto</b>; si no <b>(3)</b> hay acto formal fechado = <b>de jure no notificada</b>. Las de facto, por naturaleza, no serían notificadas.</p>
+<p class="note" style="margin-top:10px">El barrido arrojó <b>186</b> declaratorias: <b>131 genuinamente no notificadas</b> — <b>128 de jure</b> (con acto formal fechado) y <b>3 de facto</b> (sin acto formal, marco no formalizado) — más <b>55 que «coinciden con una notificada»</b>. Estas 55 caen a ±45 días, en el mismo país, de una notificación ya registrada en la capa Notificadas: se interpretan como la <b>misma declaratoria</b> que sí se notificó (el barrido la reencontró), por lo que pertenecen a esa capa y aquí figuran solo para trazabilidad. Regla objetiva de 3 tests excluyentes: <b>(1)</b> ¿coincide con una notificación OEA/ONU (±45 días, mismo país)? → coincide con una notificada; si no <b>(2)</b> ¿el acto declara ausencia de instrumento formal? → de facto; si no <b>(3)</b> hay acto formal fechado → de jure no notificada.</p>
 <div class="cols" style="margin-top:18px">
  <div class="card"><p class="h3">Por indicativo (figura agrupada)</p><p class="hint">clic para filtrar</p><div id="djfig_d"></div></div>
  <div class="card"><p class="h3">Por alcance</p><p class="hint">clic para filtrar</p><div id="djalc_d"></div></div>
  <div class="card"><p class="h3">Por materia declarada</p><p class="hint">clic para filtrar</p><div id="djtema_d"></div></div>
 </div>
 <div class="ctrls" style="margin-top:18px">
- <select id="djtax"><option value="">Toda taxonomía</option><option value="de_jure_no_notificada">De jure no notificada</option><option value="de_facto">De facto</option><option value="notificada">Solapa notificada</option></select>
+ <select id="djtax"><option value="">Toda taxonomía</option><option value="de_jure_no_notificada">De jure no notificada</option><option value="de_facto">De facto</option><option value="notificada">Coincide con una notificada</option></select>
  <select id="djfam"><option value="">Todo indicativo</option></select>
  <select id="djalc"><option value="">Todo alcance</option><option value="nacional">Nacional</option><option value="subnacional">Subnacional</option></select>
  <select id="djtema"><option value="">Toda materia</option></select>
@@ -298,7 +298,7 @@ const jtax=document.getElementById('djtax'),jfam=document.getElementById('djfam'
 [...new Set(F.map(x=>x.tema))].filter(Boolean).sort().forEach(t=>jtema.add(new Option(t,t)));
 [...new Set(F.map(x=>x.country))].filter(Boolean).sort().forEach(p=>jpais.add(new Option(p,p)));
 const jyrs=[...new Set(F.map(x=>x._y))].filter(Boolean).sort();jyrs.forEach(y=>jd.add(new Option(y,y)));[...jyrs].reverse().forEach(y=>jh.add(new Option(y,y)));
-const taxL=t=>({'de_jure_no_notificada':'de jure no notif.','de_facto':'de facto','notificada':'notificada'}[t]||t||'—');
+const taxL=t=>({'de_jure_no_notificada':'de jure no notif.','de_facto':'de facto','notificada':'coincide notif.'}[t]||t||'—');
 const sel=new Set();let djCur=[];
 function upSel(){document.getElementById('djsel').textContent=sel.size;}
 function djrender(){
