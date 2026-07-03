@@ -151,6 +151,23 @@ footer{padding:32px 0;color:var(--faint);font-size:12px}
 <div id="ctldetail"></div>
 <p class="note"><b>Clic en el nombre de un país</b> para ver el detalle cronológico de sus declaratorias (ambas capas). La capa notificada agrupa las notificaciones de un país en <b>episodios de vigencia</b>: renovaciones separadas por ≤75 días se encadenan en una vigencia continua; un lapso mayor abre un episodio nuevo (criterio heurístico de la reconstrucción —basado en los ciclos típicos de renovación de 30–90 días—, no una regla legal). La capa no notificada muestra cada declaratoria del barrido con ancho mínimo para visibilidad. Pasa el cursor para ver el detalle y la fuente.</p>
 </section>
+<section>
+<p class="eyebrow">Registro combinado</p>
+<h2>Todas las declaratorias, línea a línea <span class="pill">notificadas + no notificadas</span></h2>
+<p class="subt">Compara acto por acto ambas capas en una sola tabla, con sus fuentes. Filtra por capa, país o periodo.</p>
+<div class="ctrls" style="margin-top:16px">
+ <select id="gcapa"><option value="">Todas las capas</option><option value="notificada">Notificada</option><option value="de_jure_no_notificada">De jure no notif.</option><option value="de_facto">De facto</option></select>
+ <select id="gpais"><option value="">Todos los países</option></select>
+ <select id="gdesde"><option value="">Desde año</option></select>
+ <select id="ghasta"><option value="">Hasta año</option></select>
+ <input id="gq" placeholder="buscar figura, detalle, país…" style="flex:1;min-width:170px">
+ <button id="gxls" class="btn">⭳ Exportar a Excel</button>
+</div>
+<div class="tablewrap"><table id="gtbl"><thead><tr>
+ <th>Fecha</th><th>País</th><th>Capa</th><th>Figura / tipo</th><th>Detalle / instrumento</th><th>Alcance</th><th>Fuente</th>
+</tr></thead><tbody></tbody></table></div>
+<p class="note"><b id="gfilt">—</b> actos en vista (de <b id="gtot">—</b>). Capa = a qué conjunto pertenece cada acto. Fuente: PDF/C.N. oficial (notificadas) o gaceta/enlace (no notificadas). Clic en una fila con ▸ para ver el texto oficial.</p>
+</section>
 </div>
 
 <!-- ============ NOTIFICADAS ============ -->
@@ -350,4 +367,40 @@ function exportXls(){
 jxls.onclick=exportXls;
 jtax.onchange=jfam.onchange=jalc.onchange=jtema.onchange=jpais.onchange=jd.onchange=jh.onchange=djrender;jq.oninput=djrender;
 djrender();
+
+/* ---------- GENERAL: registro combinado (ambas capas, línea a línea) ---------- */
+const ESN={"Argentina":"Argentina","Bolivia":"Bolivia","Brazil":"Brasil","Chile":"Chile","Colombia":"Colombia","Costa Rica":"Costa Rica","Ecuador":"Ecuador","El Salvador":"El Salvador","Guatemala":"Guatemala","Honduras":"Honduras","Jamaica":"Jamaica","Mexico":"México","Nicaragua":"Nicaragua","Panama":"Panamá","Paraguay":"Paraguay","Peru":"Perú","Dominican Republic":"República Dominicana","Suriname":"Suriname","Trinidad and Tobago":"Trinidad y Tobago","Uruguay":"Uruguay","Venezuela":"Venezuela"};
+const CAPL={notificada:'Notificada',de_jure_no_notificada:'De jure no notif.',de_facto:'De facto'};
+const COMBO=[];
+D.rows.forEach(r=>COMBO.push({f:r.fecha,y:r.anio,pais:r.pais,capa:'notificada',fig:r.tipo||'—',det:r.detalle||r.evento||'—',alc:'',src:r.url,st:(r.fuente.indexOf('OEA')>=0?'PDF OEA':'C.N. ONU'),texto:r.texto||''}));
+D.feed.forEach(x=>{const y=(x.date_start.match(/(?:19|20)\d\d/)||[''])[0];COMBO.push({f:x.date_start,y:y,pais:ESN[x.country]||x.country,capa:x.taxonomia_obj,fig:x.figure_type||'—',det:x.instrument||'—',alc:x.alcance,src:x.source_url,st:'gaceta',texto:''});});
+const gcapa=document.getElementById('gcapa'),gpais=document.getElementById('gpais'),gdesde=document.getElementById('gdesde'),ghasta=document.getElementById('ghasta'),gq=document.getElementById('gq');
+document.getElementById('gtot').textContent=COMBO.length;
+[...new Set(COMBO.map(c=>c.pais))].filter(Boolean).sort().forEach(p=>gpais.add(new Option(p,p)));
+const gy=[...new Set(COMBO.map(c=>c.y))].filter(Boolean).sort();gy.forEach(y=>gdesde.add(new Option(y,y)));[...gy].reverse().forEach(y=>ghasta.add(new Option(y,y)));
+let gCur=[];
+function grender(){
+ gCur=COMBO.filter(c=>(!gcapa.value||c.capa==gcapa.value)&&(!gpais.value||c.pais==gpais.value)&&(!gdesde.value||c.y>=gdesde.value)&&(!ghasta.value||c.y<=ghasta.value)&&(!gq.value||((c.fig||'')+' '+(c.det||'')+' '+(c.pais||'')).toLowerCase().includes(gq.value.toLowerCase())));
+ gCur.sort((a,b)=>(a.f<b.f?1:(a.f>b.f?-1:0)));
+ document.getElementById('gfilt').textContent=gCur.length;
+ document.querySelector('#gtbl tbody').innerHTML=gCur.slice(0,3000).map((c,i)=>{
+  const cap=`<span class="bdg tx-${c.capa}">${CAPL[c.capa]||c.capa}</span>`;
+  const doc=c.src?`<a href="${c.src}" target="_blank">${c.st} ↗</a>`:'—';
+  const alc=c.alc?`<span class="bdg al-${c.alc}">${c.alc}</span>`:'—';
+  const main=`<tr class="rowmain" data-g="${i}"><td>${c.texto?'<span class="exp">▸</span>':''}${c.f}</td><td>${c.pais}</td><td>${cap}</td><td>${c.fig}</td><td>${(c.det||'').replace(/</g,'&lt;')}</td><td>${alc}</td><td>${doc}</td></tr>`;
+  const det=c.texto?`<tr id="gdet${i}" style="display:none"><td colspan="7"><div class="texto">${c.texto.replace(/</g,'&lt;')}${c.src?` <a href="${c.src}" target="_blank">[documento oficial ↗]</a>`:''}</div></td></tr>`:'';
+  return main+det;
+ }).join('');
+ document.querySelectorAll('#gtbl .rowmain').forEach(tr=>tr.onclick=()=>{const d=document.getElementById('gdet'+tr.dataset.g);if(d){d.style.display=d.style.display=='none'?'table-row':'none';const e=tr.querySelector('.exp');if(e)e.textContent=d.style.display=='none'?'▸':'▾';}});
+}
+gcapa.onchange=gpais.onchange=gdesde.onchange=ghasta.onchange=grender;gq.oninput=grender;
+document.getElementById('gxls').onclick=function(){
+ const cols=[['Fecha','f'],['País','pais'],['Capa',null],['Figura/tipo','fig'],['Detalle/instrumento','det'],['Alcance','alc'],['Fuente','src']];
+ const hr='<Row>'+cols.map(c=>`<Cell><Data ss:Type="String">${xesc(c[0])}</Data></Cell>`).join('')+'</Row>';
+ const br=gCur.map(x=>'<Row>'+cols.map(c=>{const v=c[1]?x[c[1]]:(CAPL[x.capa]||x.capa);return `<Cell><Data ss:Type="String">${xesc(v)}</Data></Cell>`;}).join('')+'</Row>').join('');
+ const xml=`<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Registro combinado"><Table>${hr}${br}</Table></Worksheet></Workbook>`;
+ const blob=new Blob(['﻿'+xml],{type:'application/vnd.ms-excel'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='registro_combinado_estados_excepcion.xls';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+grender();
 </script></body></html>
