@@ -63,14 +63,20 @@ h2{font-size:18px;font-weight:500;margin:0 0 4px}
 .yrchart{display:flex;align-items:flex-end;gap:2px;height:150px;border-bottom:1px solid var(--line2)}
 .yrcol{flex:1;min-width:5px;display:flex;flex-direction:column;justify-content:flex-end;height:100%;align-items:center}
 .yrbar{width:100%;background:var(--blue);border-radius:2px 2px 0 0;min-height:1px}
-.yrlbl{font-size:9px;color:var(--faint);margin-top:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.yraxis{position:relative;height:15px;margin-top:7px}
+.yraxis span{position:absolute;font-size:9.5px;color:var(--faint);transform:translateX(-50%);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tllbl.click{cursor:pointer}.tllbl.click:hover{color:var(--blue);text-decoration:underline}
+#ctldetail .card{margin-top:14px}
+.dl{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.dl:last-child{border-bottom:none}.dl .dd{color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap;width:78px}
+.dl .dt{white-space:nowrap}.dl .dx{color:var(--mut);flex:1;overflow:hidden;text-overflow:ellipsis}
 .ctrls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
 select,input{font:inherit;background:var(--surface);border:1px solid var(--line2);color:var(--ink);padding:8px 11px;border-radius:9px;font-size:13px}
 input::placeholder{color:var(--faint)}
 .btn{cursor:pointer;background:var(--blue);color:#fbfaf6;border:none;padding:8px 14px;border-radius:9px;font-size:13px;font-weight:500}.btn:hover{background:#456185}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--mut);font-weight:500;position:sticky;top:52px;background:var(--bg);cursor:pointer;white-space:nowrap;font-size:12px;letter-spacing:.3px}
+th{color:var(--mut);font-weight:500;position:sticky;top:0;z-index:3;background:var(--surface);box-shadow:0 1px 0 var(--line2);cursor:pointer;white-space:nowrap;font-size:12px;letter-spacing:.3px}
 .rowmain{cursor:pointer}.rowmain:hover td{background:#ece8de}
 .exp{color:var(--faint);font-size:9px;margin-right:4px}
 td .src{font-size:11px;padding:1px 8px;border-radius:20px}
@@ -141,7 +147,8 @@ footer{padding:32px 0;color:var(--faint);font-size:12px}
  <label><input type="checkbox" id="ly-facto" checked><span class="sw ly-facto"></span>De facto <span class="pill" id="c-facto"></span></label>
 </div>
 <div class="card"><div class="tl" id="ctl"></div></div>
-<p class="note">La capa notificada agrupa las notificaciones de un país en <b>episodios de vigencia</b>: renovaciones separadas por ≤75 días se encadenan en una vigencia continua; un lapso mayor abre un episodio nuevo (criterio heurístico de la reconstrucción —basado en los ciclos típicos de renovación de 30–90 días—, no una regla legal). La capa no notificada muestra cada declaratoria del barrido con ancho mínimo para visibilidad. Pasa el cursor para ver el detalle y la fuente.</p>
+<div id="ctldetail"></div>
+<p class="note"><b>Clic en el nombre de un país</b> para ver el detalle cronológico de sus declaratorias (ambas capas). La capa notificada agrupa las notificaciones de un país en <b>episodios de vigencia</b>: renovaciones separadas por ≤75 días se encadenan en una vigencia continua; un lapso mayor abre un episodio nuevo (criterio heurístico de la reconstrucción —basado en los ciclos típicos de renovación de 30–90 días—, no una regla legal). La capa no notificada muestra cada declaratoria del barrido con ancho mínimo para visibilidad. Pasa el cursor para ver el detalle y la fuente.</p>
 </section>
 </div>
 
@@ -163,7 +170,7 @@ footer{padding:32px 0;color:var(--faint);font-size:12px}
  <div class="card"><p class="h3">Por tipo de régimen (notificado)</p><p class="hint">clic para filtrar la tabla</p><div id="ctipo"></div></div>
  <div class="card"><p class="h3">Recencia — última notificación por país</p><div id="crec"></div></div>
 </div>
-<div class="card" style="margin-top:18px"><p class="h3">Notificaciones por año <span style="color:var(--faint);font-weight:400">· 1976–2026 continuo</span></p><div class="yrchart" id="canio"></div></div>
+<div class="card" style="margin-top:18px"><p class="h3">Notificaciones por año <span style="color:var(--faint);font-weight:400">· 1976–2026 continuo</span></p><div class="yrchart" id="canio"></div><div class="yraxis" id="canioax"></div></div>
 </section>
 <section>
 <h2>Registro de notificaciones <span class="pill">notificadas</span></h2>
@@ -249,7 +256,8 @@ const _now=Date.now();
 document.getElementById('crec').innerHTML=D.recencia.map(r=>{const dias=Math.floor((_now-Date.parse(r.ultima))/864e5);const sem=dias<90?'rojo':(dias<365?'ambar':'verde');return `<div class="bar"><div class="lbl"><span class="sem ${sem}"></span>${r.pais}</div><div style="flex:1;color:var(--mut);font-size:12px">${r.ultima}</div><div class="v">${dias}d</div></div>`;}).join('');
 {const h=document.getElementById('hoy');if(h)h.textContent=new Date().toISOString().slice(0,10);}
 const my=Math.max(...D.anios.map(a=>a[1]),1);
-document.getElementById('canio').innerHTML=D.anios.map(([y,n])=>`<div class="yrcol" title="${y}: ${n}"><div class="yrbar" style="height:${n?Math.max(n/my*100,1.2):0}%"></div><div class="yrlbl">${(+y)%5==0?y:''}</div></div>`).join('');
+document.getElementById('canio').innerHTML=D.anios.map(([y,n])=>`<div class="yrcol" title="${y}: ${n}"><div class="yrbar" style="height:${n?Math.max(n/my*100,1.2):0}%"></div></div>`).join('');
+{const N=D.anios.length;document.getElementById('canioax').innerHTML=D.anios.map(([y],i)=>(+y)%5==0?`<span style="left:${(i+0.5)/N*100}%">${y}</span>`:'').join('');}
 
 /* ---------- NOTIFICADAS: registro ---------- */
 [...new Set(D.rows.map(r=>r.pais))].sort().forEach(p=>fp.add(new Option(p,p)));
@@ -277,10 +285,11 @@ function ctl(){
   let b='';
   if(lyN.checked)p.notif.forEach((e,i)=>{let tk='';const ne=Math.min(e.ext,20);for(let k=1;k<=ne;k++)tk+=`<span class="tk" style="left:${k/(ne+1)*100}%"></span>`;b+=`<div class="ep ly-notif" style="left:${e.x}%;width:${e.w}%" data-t="notif" data-p="${p.pais}" data-i="${i}">${tk}</div>`;});
   p.feed.forEach((e,i)=>{const on=e.lay=='de_facto'?lyF.checked:lyJ.checked;if(!on)return;b+=`<div class="ep ${laycls[e.lay]}" style="left:${e.x}%;width:${e.w}%" data-t="feed" data-p="${p.pais}" data-i="${i}"></div>`;});
-  if(b)out+=`<div class="tlrow"><div class="tllbl">${p.pais}</div><div class="tltrack">${b}</div></div>`;
+  if(b)out+=`<div class="tlrow"><div class="tllbl click" data-p="${p.pais}">${p.pais}</div><div class="tltrack">${b}</div></div>`;
  });
  out+=`<div class="axisp"></div>`;
  document.getElementById('ctl').innerHTML=out;
+ document.querySelectorAll('#ctl .tllbl.click').forEach(el=>el.onclick=()=>ctlDetail(el.dataset.p));
  const idxN={},idxF={};D.combined.forEach(p=>{idxN[p.pais]=p.notif;idxF[p.pais]=p.feed;});
  document.querySelectorAll('#ctl .ep').forEach(el=>{el.onmousemove=ev=>{
    if(el.dataset.t=='notif'){const e=idxN[el.dataset.p][+el.dataset.i];showtip(`<b>${el.dataset.p}</b> · notificada<br>${e.reg||''}<br><span class="k">inicio</span> ${e.ini} → <span class="k">fin</span> ${e.fin}${e.cerr=='1'?' (levantado)':' (est.)'}<br><span class="k">duración</span> ${e.d}d · <span class="k">ext.</span> ${e.ext}<br><span class="k">fuente</span> ${e.src}`,ev);}
@@ -288,6 +297,16 @@ function ctl(){
   };el.onmouseleave=hidetip;});
 }
 [lyN,lyJ,lyF].forEach(c=>c.onchange=ctl);ctl();
+function ctlDetail(pais){
+ const p=D.combined.find(x=>x.pais===pais);if(!p)return;
+ let items=[];
+ p.notif.forEach(e=>items.push({d:e.ini,cls:'ly-notif',t:'notificada',lab:(e.reg||'—')+` · ${e.ini}→${e.fin} · ${e.d}d`,x:`${e.ext} renov. · ${e.src}`}));
+ p.feed.forEach(e=>items.push({d:e.ini,cls:e.lay=='de_facto'?'ly-facto':'ly-jure',t:e.lay=='de_facto'?'de facto':'de jure no notif.',lab:(e.fig||'—')+(e.fin?` · ${e.ini}→${e.fin}`:` · ${e.ini}`),x:e.inst||''}));
+ items.sort((a,b)=>(a.d>b.d?1:(a.d<b.d?-1:0)));
+ const rows=items.map(it=>`<div class="dl"><span class="dd">${it.d}</span><span class="dt"><span class="sw ${it.cls}" style="display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px"></span>${it.t}</span><span class="dx">${(it.lab+' — '+it.x).replace(/</g,'&lt;')}</span></div>`).join('');
+ document.getElementById('ctldetail').innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><p class="h3" style="margin:0">${pais} · ${items.length} declaratorias en el registro</p><a href="javascript:void(0)" onclick="document.getElementById('ctldetail').innerHTML=''" style="font-size:12px">cerrar ✕</a></div><div style="margin-top:10px">${rows}</div></div>`;
+ document.getElementById('ctldetail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 
 /* ---------- NO NOTIFICADAS ---------- */
 const F=(D.feed||[]);
