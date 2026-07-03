@@ -88,6 +88,15 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 .pill{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;background:#e7e2d6;color:#595448;margin-left:8px;vertical-align:middle}
 .tip{position:fixed;background:#fff;border:1px solid var(--line2);border-radius:10px;padding:11px 13px;font-size:12px;pointer-events:none;display:none;z-index:50;max-width:320px;box-shadow:0 8px 28px rgba(60,55,40,.16);line-height:1.5}
 .tip b{font-weight:500}.tip .k{color:var(--mut)}
+.estruct{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media(max-width:900px){.estruct{grid-template-columns:1fr}}
+.ecat{background:var(--surface);border:1px solid var(--line2);border-radius:14px;padding:20px 22px}
+.ecat .ehead{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:8px;flex-wrap:wrap}
+.ecat .ehead .sw{width:12px;height:12px;border-radius:3px}
+.ecat p{margin:0 0 8px;color:var(--mut);font-size:13px;line-height:1.6}
+.ecat ul{margin:8px 0 0;padding:0;list-style:none}
+.ecat li{margin:7px 0;font-size:13px;color:var(--ink);line-height:1.5}
+.ecat li .sw{width:11px;height:11px;border-radius:3px;margin-right:7px;display:inline-block;vertical-align:middle}
 footer{padding:32px 0;color:var(--faint);font-size:12px}
 </style></head><body>
 <div class="wrap"><header>
@@ -103,6 +112,25 @@ footer{padding:32px 0;color:var(--faint);font-size:12px}
 
 <!-- ============ GENERAL ============ -->
 <div class="tab" id="tab-general">
+<section>
+<p class="eyebrow">Qué contiene este registro</p>
+<h2>Declaratorias de excepción en las Américas — notificadas y no notificadas</h2>
+<p class="subt" style="max-width:840px">Reúne declaratorias de estado de excepción, emergencia, sitio, calamidad y figuras equivalentes (1976–2026), organizadas por su <b>origen</b> y su <b>estatus jurídico</b>. No es solo un registro de notificaciones: integra en un mismo marco lo que los Estados <b>sí comunicaron</b> a los organismos internacionales y lo que <b>no</b>. Los dos conjuntos son revisados y mutuamente excluyentes.</p>
+<div class="estruct">
+ <div class="ecat">
+  <div class="ehead"><span class="sw ly-notif"></span><b>Declaratorias notificadas</b><span class="pill">pestaña Notificadas</span></div>
+  <p>Identificadas a partir de las <b>notificaciones formales</b> que los propios Estados enviaron a los organismos internacionales de referencia — <b>OEA</b> (Art. 27 CADH) y <b>ONU</b> (Art. 4 PIDCP). Depuradas y desduplicadas, y reconstruidas en episodios de vigencia con sus renovaciones.</p>
+ </div>
+ <div class="ecat">
+  <div class="ehead"><span class="sw ly-jure"></span><span class="sw ly-facto"></span><b>Declaratorias no notificadas</b><span class="pill">pestaña No notificadas</span></div>
+  <p>Identificadas por <b>otros métodos</b> —barrido de gacetas oficiales y fuentes validadas—: declaratorias reales que <b>no se comunicaron</b> a esos organismos. Dentro del grupo se observan dos:</p>
+  <ul>
+   <li><span class="sw ly-jure"></span><b>De jure</b> — existe algún tipo de <b>acto formal</b> de declaratoria (decreto, ley, proclamation, arrêté…).</li>
+   <li><span class="sw ly-facto"></span><b>De facto</b> — la emergencia opera bajo un <b>marco no formalizado</b>, sin acto de declaración o suspensión. Por su naturaleza, nunca se notificarían.</li>
+  </ul>
+ </div>
+</div>
+</section>
 <section>
 <p class="eyebrow">Panorama combinado</p>
 <h2>Ambas capas en una línea de tiempo</h2>
